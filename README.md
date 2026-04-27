@@ -46,5 +46,5 @@ make run
 3. **запуск тестов:**
 
 ```bash
-make tests
+make test
 ```
