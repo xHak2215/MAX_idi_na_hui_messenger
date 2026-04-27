@@ -1,0 +1,6 @@
+loguru
+fastapi
+requests
+pillow
+python-multipart
+uvicorn
