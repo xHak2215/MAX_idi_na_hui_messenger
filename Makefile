@@ -24,6 +24,7 @@ install:
 run:
 	@echo "Running app..."
 	@$(PYTHON) api.py
+ @$(PYTHON) web_ui_server.py
 
 clean:
 	@echo "Cleaning virtual environment..."
