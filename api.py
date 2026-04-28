@@ -127,6 +127,7 @@ def get_chat(login:str, chat_id:int):
     data=get_data_chat(login, chat_id)
     return data
 
+# переделать логику отправки и отработки ответа на сообщение 
 @app.get("/chat/chat_message")
 def caht_get_message(login:str, chat_id:int, token:str):
     ver_data = verification_token(login, token)
