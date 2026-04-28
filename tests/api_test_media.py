@@ -11,7 +11,7 @@ with requests.get(root_ip+"/media/get", stream=True, params={"id":0}) as r:
     out_path = Path("file.jpg")
     downloaded = 0
     with out_path.open("wb") as f:
-        for chunk in r.iter_content(chunk_size=1024*1024):
+        for chunk in r.iter_content(chunk_size=1024):
             if not chunk:
                 continue
             f.write(chunk)
