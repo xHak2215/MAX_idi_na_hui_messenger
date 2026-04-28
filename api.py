@@ -61,7 +61,7 @@ def sig_in_user(user_name:str, email:str):# на потом
     
     send_mail(html, email)
     
-def streamfile(path, chunk_size=1024*1024):
+def streamfile(path, chunk_size=1024):
     with open(path, "rb") as f:
         while True:
             chunk = f.read(chunk_size)
@@ -90,8 +90,9 @@ def get_media(id:int):
     file_list=os.listdir(path)
     for fn in file_list:
         if int(fn.split('.', -1)[0]) == id:
-            #отправка
-            return StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")    
+            # отправка
+            return
+ StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")    
         
     return {"is_ok": False, "error_code":404, "detalis": f"файл не найден", "data": None}
 
