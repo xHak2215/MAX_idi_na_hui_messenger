@@ -36,7 +36,7 @@ relust_h=requests.get(f"{root_ip}/chat/get_message",params={
                                                     "token":tokin,
                                                     "message_id":1})
 
-relust_j=requests.get(f"{root_ip}/chat/get_message",params={
+relust_j=requests.get(f"{root_ip}/chat/get_message",params={ # проверка на ошибку об отсуцтвии сообщения
                                                     "login":"user228",
                                                     "chat_id":1,
                                                     "token":tokin,
@@ -44,10 +44,10 @@ relust_j=requests.get(f"{root_ip}/chat/get_message",params={
 
 timer=time.time()-timer
 
-print(relust_a.json())
-print(relust_b.json())
-print(relust_с.json())
-print(relust_g.json())
-print(relust_h.json())
-print(relust_j.json())
+print(relust_a, relust_a.json())
+print(relust_b, relust_b.json())
+print(relust_с, relust_с.json())
+print(relust_g, relust_g.json())
+print(relust_h, relust_h.json())
+print(relust_j, relust_j.json())
 print(f"время исполнения: {timer} s.")

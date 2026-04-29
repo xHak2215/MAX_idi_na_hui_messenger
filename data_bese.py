@@ -165,16 +165,16 @@ def creat_chat(name:str, avatar:int, users_list:list, private:bool, about=None)-
         else:
             chat_id=1
         
-        cursor.execute('SELECT * FROM Chats WHERE name = ? ', (name, ))
-        result = cursor.fetchone()
+        #cursor.execute('SELECT * FROM Chats WHERE name = ? ', (name, ))
+        #result = cursor.fetchone()
 
-        if result is None:
-            cursor.execute('INSERT INTO Chats (chat_id, name, avatar, about, users_list, private) VALUES (?, ?, ?, ?, ?, ?)', (chat_id, name, avatar, about, json.dumps(users_list), private))
-            connection.commit()
-            connection.close()
-            return {"is_ok": True, "error_code":None, "detalis": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
-        else:
-            return {"is_ok": False, "error_code":403, "detalis": f"чат с таким именем уже существует", "data": None}
+        #if result is None:
+        cursor.execute('INSERT INTO Chats (chat_id, name, avatar, about, users_list, private) VALUES (?, ?, ?, ?, ?, ?)', (chat_id, name, avatar, about, json.dumps(users_list), private))
+        connection.commit()
+        connection.close()
+        return {"is_ok": True, "error_code":None, "detalis": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
+        #else:
+        #    return {"is_ok": False, "error_code":403, "detalis": f"чат с таким именем уже существует", "data": None}
         
     except Exception as e:
         logger.error(f'Ошибка в операции с базой данных: {e}\n{traceback.format_exc()}')

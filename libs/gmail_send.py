@@ -38,3 +38,44 @@ def send_mail(html:str, recipients:str, text=None, server = 'smtp.gmail.com', us
     mail.login(user, password)
     mail.sendmail(user, recipients, msg.as_string())
     mail.quit()
+
+def user_identification_for_email(user_name:str, email:str):# на потом
+    key=123
+    html ='''
+    <html>
+    <head>
+
+    <style>
+    body {
+        font-family: Arial; 
+        background: #31241d; 
+    } 
+
+    .key {
+    padding: 10px;
+    display: inline-block;
+    border: 3px solid #635e5c;
+
+    text-align: center;
+    font-style: italic;
+    font-size: 25;
+    }
+
+    .centr {
+        text-align: center;
+    }
+    </style>
+
+    </head>
+    <body>
+    <div class="centr"><h2>привет {} !</h2></div>
+
+    <h3>вот ваш код для подтверждения адреса электронной почты:</h3>
+
+    <div class="key">{}</div>
+
+    </body>
+    </html>
+    '''.format(user_name, key)
+    
+    send_mail(html, email)

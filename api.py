@@ -8,10 +8,9 @@ import json
 import time
 
 from data_bese import creat_new_user, get_data_user, creat_chat, get_data_chat, verification_token
-from libs.gmail_send import send_mail
 from libs.zip_images import zip_images
 from libs.token_creat import token
-from libs.messages_menager import get_message, creat_message
+from libs.messages_menager import get_messages, creat_message
 
 app = FastAPI()
 
@@ -19,47 +18,6 @@ def get_local_ip():
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     return local_ip
-
-def sig_in_user(user_name:str, email:str):# на потом
-    key=123
-    html ='''
-    <html>
-    <head>
-
-    <style>
-    body {
-        font-family: Arial; 
-        background: #31241d; 
-    } 
-
-    .key {
-    padding: 10px;
-    display: inline-block;
-    border: 3px solid #635e5c;
-
-    text-align: center;
-    font-style: italic;
-    font-size: 25;
-    }
-
-    .centr {
-        text-align: center;
-    }
-    </style>
-
-    </head>
-    <body>
-    <div class="centr"><h2>привет {} !</h2></div>
-
-    <h3>вот ваш код для подтверждения адреса электронной почты:</h3>
-
-    <div class="key">{}</div>
-
-    </body>
-    </html>
-    '''.format(user_name, key)
-    
-    send_mail(html, email)
     
 def streamfile(path, chunk_size=1024):
     with open(path, "rb") as f:
@@ -92,7 +50,7 @@ def get_media(id:int):
         if int(fn.split('.', -1)[0]) == id:
             # отправка
             return
- StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")    
+        StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")    
         
     return {"is_ok": False, "error_code":404, "detalis": f"файл не найден", "data": None}
 
@@ -128,7 +86,6 @@ def get_chat(login:str, chat_id:int):
     data=get_data_chat(login, chat_id)
     return data
 
-# переделать логику отправки и отработки ответа на сообщение 
 @app.get("/chat/chat_message")
 def caht_get_message(login:str, chat_id:int, token:str):
     ver_data = verification_token(login, token)
@@ -137,33 +94,38 @@ def caht_get_message(login:str, chat_id:int, token:str):
         
         if data['is_ok']:
             if login in data['data']["users_list"]:
-                data = get_message(chat_id)[0]
-                return {"is_ok": True, "error_code":None, "detalis":None, "data": data}
+                mess = get_messages(chat_id)
+                if mess:
+                    return {"is_ok": True, "error_code":None, "detalis":None, "data": mess[0]}
+                else:return {"is_ok": False, "error_code":404, "detalis":"такого чата не существует", "data": None}
             else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
-        else:return data
+        else:
+            return data
     else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, пользователь не подтверждён", "data": None}
     
 @app.get("/chat/send_message")
 def send_message(chat_id:int, message:str, reply_to:int, login:str, token:str):
+    send_time = time.time()
     ver_data = verification_token(login, token)
     if ver_data["is_ok"] and ver_data["data"]:
-        
         data=get_data_chat(login, chat_id)
+
         if data['is_ok']:
             if login in data['data']["users_list"]:
                 if reply_to>0:
-                    data = get_message(chat_id)[0]
-                    message = data.get(str(reply_to))
+                    mesag_reply = get_messages(chat_id)
+                    if not mesag_reply:
+                        return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
+                    else:
+                        data = mesag_reply[0]
+                    
+                creat_data = creat_message(chat_id, login, message, reply_to, send_time)
+                if creat_data["is_ok"]:
+                    return {"is_ok": True, "error_code":None, "detalis":None, "data":{"chat_id":chat_id, "name":login, "message":message, "reply_to":reply_to, "time":time.time()}}
                 else:
-                    message = True
-                if message:
-                    creat_message(chat_id, login, message, reply_to, time.time())
-                else:
-                    return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
-                return {"is_ok": True, "error_code":None, "detalis":None, "data":{"chat_id":chat_id, "name":login, "message":message, "reply_to":reply_to, "time":time.time()} }
-            
+                    return creat_data
             else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
-        else:return data 
+        else:return data
     
 @app.get("/chat/get_message")
 def get_message_id(login:str, chat_id:int, token:str, message_id:int):
@@ -173,10 +135,11 @@ def get_message_id(login:str, chat_id:int, token:str, message_id:int):
         data = get_data_chat(login, chat_id)
         if data['is_ok']:
             if login in data['data']["users_list"]:
-                data = get_message(chat_id)[0]
-                message = data.get(str(message_id))
-                if message:
-                    return {"is_ok": True, "error_code":None, "detalis":None, "data":message}
+                data = get_messages(chat_id)
+                if data:
+                    message = data[0].get(str(message_id))
+                    if message:
+                        return {"is_ok": True, "error_code":None, "detalis":None, "data":message}
                 else:return {"is_ok": False, "error_code":404, "detalis":"сообщение не найдено", "data": None}
             else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
         else:return data
