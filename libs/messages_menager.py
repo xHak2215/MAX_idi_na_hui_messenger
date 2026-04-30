@@ -33,12 +33,12 @@ def get_messages(chat_id:int)->tuple[dict, str] | None:
 
         return data, file 
 
-def creat_message(chat_id:int, user:str, message:str, reply_to:int, time:float)->dict:
+def creat_message(chat_id:int, login:str, message:str, reply_to:int, time:float)->dict:
     """отправление(создание) сообщения в чат 
 
     Args:
         chat_id (int): Chat ID
-        user (str): имя пользователя
+        login (str): логин пользователя
         message (str): сообщение
         reply_to (int): ID сообщения на котрое являеться ответом отпровляемое. если сообщение не должно ни на что отвечать передайте -1
         time (float): время отправки сообщения (в формате UNIX) 
@@ -53,12 +53,43 @@ def creat_message(chat_id:int, user:str, message:str, reply_to:int, time:float)-
 
     chat_file = os.path.join(os.getcwd(), "chats", f"chat_{chat_id}.json")
 
-    old_chat[mid] = {"user":user, "message":message, "time":time, "reply_to":reply_to}
+    old_chat[mid] = {"login":login, "message":message, "time":time, "reply_to":reply_to, "edit":False}
     
     new_data = json.dumps(old_chat)
     
     with open(chat_file, 'w') as f:
         f.write(new_data)
+
+    return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
+
+def edit_message(chat_id:int, login:str, message:str, message_id:int, time:float)->dict:
+    """отправление(создание) сообщения в чат 
+
+    Args:
+        chat_id (int): Chat ID
+        login (str): логин пользователя
+        message (str): сообщение
+        reply_to (int): ID сообщения на котрое являеться ответом отпровляемое. если сообщение не должно ни на что отвечать передайте -1
+        time (float): время отправки сообщения (в формате UNIX) 
+    """
+    m_data = get_messages(chat_id)
+
+    if m_data:
+        if m_data[0].get(message_id):
+            if m_data[0]["login"] == login:
+                chat_file = os.path.join(os.getcwd(), "chats", f"chat_{chat_id}.json")
+                m_data[0][message_id] = {"login":login, "message":message, "time":time, "reply_to":m_data[0][message_id]["reply_to"], "edit_time":time}
+                
+                new_data = json.dumps(m_data[0])
+            
+                with open(chat_file, 'w') as f:
+                    f.write(new_data)
+            else:
+                return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+        else:
+            return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
+    else:
+        return {"is_ok": False, "error_code":404, "detalis":"такого чата не существует", "data": None}
 
     return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
         

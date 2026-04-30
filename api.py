@@ -10,7 +10,7 @@ import time
 from data_bese import creat_new_user, get_data_user, creat_chat, get_data_chat, verification_token
 from libs.zip_images import zip_images
 from libs.token_creat import token
-from libs.messages_menager import get_messages, creat_message
+from libs.messages_menager import get_messages, creat_message, edit_message
 
 app = FastAPI()
 
@@ -143,12 +143,36 @@ def send_message(chat_id:int, message:str, reply_to:int, login:str, token:str):
                     
                 creat_data = creat_message(chat_id, login, message, reply_to, send_time)
                 if creat_data["is_ok"]:
+                    return {"is_ok": True, "error_code":None, "detalis":None, "data":{"chat_id":chat_id, "name":login, "message":message, "reply_to":reply_to, "time":time.time(), "edit":False}}
+                else:
+                    return creat_data
+            else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+        else:return data
+
+@app.get("/chat/edit_message")
+def edit_messages(chat_id:int, message_id:int, message:str, login:str, token:str):
+    send_time = time.time()
+    ver_data = verification_token(login, token)
+    if ver_data["is_ok"] and ver_data["data"]:
+        data=get_data_chat(login, chat_id)
+
+        if data['is_ok']:
+            if login in data['data']["users_list"]:
+                if message_id>0:
+                    mesag_reply = get_messages(chat_id)
+                    if not mesag_reply:
+                        return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
+                    else:
+                        data = mesag_reply[0]
+                    
+                creat_data = edit_message(chat_id, login, message, message_id, send_time)
+                if creat_data["is_ok"]:
                     return {"is_ok": True, "error_code":None, "detalis":None, "data":{"chat_id":chat_id, "name":login, "message":message, "reply_to":reply_to, "time":time.time()}}
                 else:
                     return creat_data
             else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
         else:return data
-    
+
 @app.get("/chat/get_message")
 def get_message_id(login:str, chat_id:int, token:str, message_id:int):
     ver_data = verification_token(login, token)
