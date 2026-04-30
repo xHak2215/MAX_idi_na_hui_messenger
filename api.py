@@ -47,10 +47,10 @@ def get_media(id:int):
     path=os.path.join(os.getcwd(), "media")
     file_list=os.listdir(path)
     for fn in file_list:
-        if int(fn.split('.', -1)[0]) == id:
+        if fn.split('.', 0)[0].isnumeric() and int(fn.split('.', 0)[0]) == id:
             # отправка
-            return
-        StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")    
+            StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")
+            return    
         
     return {"is_ok": False, "error_code":404, "detalis": f"файл не найден", "data": None}
 
@@ -69,6 +69,28 @@ async def uploadfiles(upload_file: UploadFile = File(...)):
         bufer=b''
         while True:
             chunk = await upload_file.read(1024)
+            if not chunk:
+                break
+            bufer+=chunk
+        f_d.write(bufer)
+    
+    return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
+
+@app.post("/media/uploadphoto")
+async def uploadphoto(upload_photo: UploadFile = File(...)):
+    with open(os.path.join(os.getcwd(), "media","media_config.json"),'r') as f:
+        conf=json.load(f)
+        
+    if conf["media_id"] or conf["media_id"] == 0:id=int(conf["media_id"])+1
+    else:id=0
+        
+    with open(os.path.join(os.getcwd(), "media","media_config.json"), 'w') as f:
+        json.dump({"media_id":id}, f)
+        
+    with open(os.path.join(os.getcwd(), "media", f"{id}{os.path.splitext(upload_photo.filename)[1]}"), "wb") as f_d:
+        bufer=b''
+        while True:
+            chunk = await upload_photo.read(1024)
             if not chunk:
                 break
             bufer+=chunk
