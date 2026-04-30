@@ -28,7 +28,7 @@ def streamfile(path, chunk_size=1024):
             yield chunk
 
 @app.get("/")
-def ping():
+def root():
     return 200
 
 @app.get("/data_bese/new_user")
