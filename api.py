@@ -143,7 +143,7 @@ def send_message(chat_id:int, message:str, reply_to:int, login:str, token:str):
                     
                 creat_data = creat_message(chat_id, login, message, reply_to, send_time)
                 if creat_data["is_ok"]:
-                    return {"is_ok": True, "error_code":None, "detalis":None, "data":{"chat_id":chat_id, "name":login, "message":message, "reply_to":reply_to, "time":time.time(), "edit":False}}
+                    return {"is_ok": True, "error_code":None, "detalis":None, "data":creat_data["data"]}
                 else:
                     return creat_data
             else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
@@ -167,7 +167,7 @@ def edit_messages(chat_id:int, message_id:int, message:str, login:str, token:str
                     
                 creat_data = edit_message(chat_id, login, message, message_id, send_time)
                 if creat_data["is_ok"]:
-                    return {"is_ok": True, "error_code":None, "detalis":None, "data":{"chat_id":chat_id, "name":login, "message":message, "reply_to":reply_to, "time":time.time()}}
+                    return {"is_ok": True, "error_code":None, "detalis":None, "data":creat_data["data"]}
                 else:
                     return creat_data
             else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}

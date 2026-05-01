@@ -46,21 +46,24 @@ def creat_message(chat_id:int, login:str, message:str, reply_to:int, time:float)
     chat_inf = get_messages(chat_id)
     if chat_inf:
         old_chat = chat_inf[0]
-        mid = str(max(int(k) for k in old_chat.keys()) + 1)
+        if len(old_chat.keys()) > 0: 
+            mid = str(max(int(k) for k in old_chat.keys()) + 1)
+        else:
+            mid = 0
     else:
         mid = "1"
         old_chat = {}
 
     chat_file = os.path.join(os.getcwd(), "chats", f"chat_{chat_id}.json")
 
-    old_chat[mid] = {"login":login, "message":message, "time":time, "reply_to":reply_to, "edit":False}
+    old_chat[mid] = {"login":login, "message":message, "time":time, "reply_to":reply_to, "edit_time":None}
     
     new_data = json.dumps(old_chat)
     
     with open(chat_file, 'w') as f:
         f.write(new_data)
 
-    return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
+    return {"is_ok": True, "error_code":None, "detalis":None, "data": old_chat[mid]}
 
 def edit_message(chat_id:int, login:str, message:str, message_id:int, time:float)->dict:
     """отправление(создание) сообщения в чат 
@@ -75,10 +78,10 @@ def edit_message(chat_id:int, login:str, message:str, message_id:int, time:float
     m_data = get_messages(chat_id)
 
     if m_data:
-        if m_data[0].get(message_id):
-            if m_data[0]["login"] == login:
+        if m_data[0].get(str(message_id)):
+            if m_data[0][str(message_id)]["login"] == login:
                 chat_file = os.path.join(os.getcwd(), "chats", f"chat_{chat_id}.json")
-                m_data[0][message_id] = {"login":login, "message":message, "time":time, "reply_to":m_data[0][message_id]["reply_to"], "edit_time":time}
+                m_data[0][str(message_id)] = {"login":login, "message":message, "time":time, "reply_to":m_data[0][str(message_id)]["reply_to"], "edit_time":time}
                 
                 new_data = json.dumps(m_data[0])
             
@@ -91,9 +94,4 @@ def edit_message(chat_id:int, login:str, message:str, message_id:int, time:float
     else:
         return {"is_ok": False, "error_code":404, "detalis":"такого чата не существует", "data": None}
 
-    return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
-        
-    
-    
-    
-    
+    return {"is_ok": True, "error_code":None, "detalis":None, "data": m_data[0][str(message_id)]}
