@@ -63,7 +63,7 @@ def creat_message(chat_id:int, login:str, message:str, reply_to:int, time:float)
     with open(chat_file, 'w') as f:
         f.write(new_data)
 
-    return {"is_ok": True, "error_code":None, "detalis":None, "data": old_chat[mid]}
+    return {"is_ok": True, "error_code":None, "details":None, "data": old_chat[mid]}
 
 def edit_message(chat_id:int, login:str, message:str, message_id:int, time:float)->dict:
     """отправление(создание) сообщения в чат 
@@ -88,10 +88,10 @@ def edit_message(chat_id:int, login:str, message:str, message_id:int, time:float
                 with open(chat_file, 'w') as f:
                     f.write(new_data)
             else:
-                return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+                return {"is_ok": False, "error_code":403, "details":"нет доступа, user не состоит в чате", "data": None}
         else:
-            return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
+            return {"is_ok": False, "error_code":404, "details":"нет сообщения с таким ID с этом чате", "data": None}
     else:
-        return {"is_ok": False, "error_code":404, "detalis":"такого чата не существует", "data": None}
+        return {"is_ok": False, "error_code":404, "details":"такого чата не существует", "data": None}
 
-    return {"is_ok": True, "error_code":None, "detalis":None, "data": m_data[0][str(message_id)]}
+    return {"is_ok": True, "error_code":None, "details":None, "data": m_data[0][str(message_id)]}

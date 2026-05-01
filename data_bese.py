@@ -1,6 +1,7 @@
 import sqlite3
 import traceback
 import json
+import hashlib
 
 from loguru import logger
 
@@ -98,7 +99,7 @@ def init_chat():
     cursor.execute('CREATE INDEX IF NOT EXISTS user_id_index ON Users (id)')
     return connection, cursor
         
-def creat_new_user(login:str, password:str, name:str, token:str)-> dict: 
+def creat_new_user(login:str, password:str, name:str, token:str)-> dict:
     try:
         connection, cursor = init_users()
         
@@ -110,16 +111,16 @@ def creat_new_user(login:str, password:str, name:str, token:str)-> dict:
             cursor.execute('INSERT INTO Users (login, password, name, token) VALUES (?, ?, ?, ?)', (login, password, name, token))
             connection.commit()
             connection.close()
-            return {"is_ok": True, "error_code":None, "detalis": None, "data": {"login":login, "password":password, "name":name, "token":token}}
+            return {"is_ok": True, "error_code":None, "details": None, "data": {"login":login, "password":password, "name":name, "token":token}}
         else:
             connection.commit()
             connection.close()
-            return {"is_ok": False, "error_code":403, "detalis":"такой пользователь уже существует", "data":None}
+            return {"is_ok": False, "error_code":403, "details":"такой пользователь уже существует", "data":None}
 
     except Exception as e:
         logger.error(f'Ошибка в операции с базой данных: {e}\n{traceback.format_exc()}')
         connection.close()
-        return {"is_ok": False, "error_code":500, "detalis": f"server error: {e}", "data": None}
+        return {"is_ok": False, "error_code":500, "details": f"server error: {e}", "data": None}
     finally:
         # Закрываем соединение
         connection.close()
@@ -138,17 +139,17 @@ def get_data_user(login:str)-> dict:
             name=result[3]
             connection.commit()
             connection.close()
-            return {"is_ok": True, "error_code":None, "detalis": None, "data": {"login":login, "password":password, "name":name}}
+            return {"is_ok": True, "error_code":None, "details": None, "data": {"login":login, "password":password, "name":name}}
  
         else:
             connection.commit()
             connection.close()
-            return {"is_ok": False, "error_code":404, "detalis": "пользователь не найден", "data": None}
+            return {"is_ok": False, "error_code":404, "details": "пользователь не найден", "data": None}
 
     except Exception as e:
         logger.error(f'Ошибка в операции с базой данных: {e}\n{traceback.format_exc()}')
         connection.close()
-        return {"is_ok": False, "error_code":500, "detalis": f"server error: {e}", "data": None}  
+        return {"is_ok": False, "error_code":500, "details": f"server error: {e}", "data": None}  
     finally:
         # Закрываем соединение
         connection.close()
@@ -172,14 +173,14 @@ def creat_chat(name:str, avatar:int, users_list:list, private:bool, about=None)-
         cursor.execute('INSERT INTO Chats (chat_id, name, avatar, about, users_list, private) VALUES (?, ?, ?, ?, ?, ?)', (chat_id, name, avatar, about, json.dumps(users_list), private))
         connection.commit()
         connection.close()
-        return {"is_ok": True, "error_code":None, "detalis": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
+        return {"is_ok": True, "error_code":None, "details": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
         #else:
-        #    return {"is_ok": False, "error_code":403, "detalis": f"чат с таким именем уже существует", "data": None}
+        #    return {"is_ok": False, "error_code":403, "details": f"чат с таким именем уже существует", "data": None}
         
     except Exception as e:
         logger.error(f'Ошибка в операции с базой данных: {e}\n{traceback.format_exc()}')
         connection.close()
-        return {"is_ok": False, "error_code":500, "detalis": f"server error: {e}", "data": None}
+        return {"is_ok": False, "error_code":500, "details": f"server error: {e}", "data": None}
     finally:
         # Закрываем соединение
         connection.close()
@@ -200,18 +201,18 @@ def get_data_chat(user:str, chat_id:int) -> dict:
             
             if private:
                 if user in json.loads(users_list):
-                    return {"is_ok": True, "error_code":None, "detalis": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
+                    return {"is_ok": True, "error_code":None, "details": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
                 else:
-                    return {"is_ok": False, "error_code":403, "detalis": f"нет доступа", "data": None}
+                    return {"is_ok": False, "error_code":403, "details": f"нет доступа", "data": None}
             else:
-                return {"is_ok": True, "error_code":None, "detalis": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
+                return {"is_ok": True, "error_code":None, "details": None, "data": {"chat_id":chat_id, "name":name, "avatar":avatar, "about":about, "users_list":users_list, "private":private}}
         else:
-            return {"is_ok": False, "error_code":404, "detalis": f"такого чата не существует", "data": None}
+            return {"is_ok": False, "error_code":404, "details": f"такого чата не существует", "data": None}
         
     except Exception as e:
         logger.error(f'Ошибка в операции с базой данных: {e}\n{traceback.format_exc()}')
         connection.close()
-        return {"is_ok": False, "error_code":500, "detalis": f"server error: {e}", "data": None}
+        return {"is_ok": False, "error_code":500, "details": f"server error: {e}", "data": None}
     finally:
         # Закрываем соединение
         connection.close()
@@ -236,17 +237,17 @@ def verification_token(login:str, token:str)->dict:
         if result is not None:
             connection.commit()
             connection.close()
-            return {"is_ok": True, "error_code":None, "detalis": None, "data": True}
+            return {"is_ok": True, "error_code":None, "details": None, "data": True}
  
         else:
             connection.commit()
             connection.close()
-            return {"is_ok": False, "error_code":403, "detalis": f"токен или имя указаны не верно !", "data": False}
+            return {"is_ok": False, "error_code":403, "details": f"токен или имя указаны не верно !", "data": False}
 
     except Exception as e:
         logger.error(f'Ошибка в операции с базой данных: {e}\n{traceback.format_exc()}')
         connection.close()
-        return {"is_ok": False, "error_code":500, "detalis": f"server error: {e}", "data": None}  
+        return {"is_ok": False, "error_code":500, "details": f"server error: {e}", "data": None}  
     finally:
         # Закрываем соединение
         connection.close()

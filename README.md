@@ -4,7 +4,7 @@
 
 по __коду__: <a href="/doc/code.md">code.md</a> 
 
-по __архитектуре__: <a href="/doc/structure.md">structure.md</a>
+по __архитектуре__ и __API__: <a href="/doc/structure.md">structure.md</a>
 
 ---
 
@@ -44,6 +44,7 @@ make run
 ```
 
 3. **запуск тестов:**
+перед запуском тестов нужно запустить сервер 2 командой
 
 ```bash
 make test

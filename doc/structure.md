@@ -38,11 +38,11 @@
 
 пример ответа от БД:
 
-`{'is_ok': True, 'error_code': None, 'detalis': None, 'data': {'chat_id': 1, 'name': 'чат 1', 'avatar': 0, 'about': 'test chat', 'users_list': ['user228'], 'private': True}}`
+`{'is_ok': True, 'error_code': None, 'details': None, 'data': {'chat_id': 1, 'name': 'чат 1', 'avatar': 0, 'about': 'test chat', 'users_list': ['user228'], 'private': True}}`
 
 ключи:
 - `is_ok` - показывает есть ли ошибка, *True* есть *False* нет 
-- `detalis` - детали ошибки для лучшего понимания и дебага, None если ошибки не было
+- `details` - детали ошибки для лучшего понимания и дебага, None если ошибки не было
 - `error_code` - это статус код ошибки, если ошибки нет равен None 
 - `data` - основные данные 
 
@@ -78,8 +78,6 @@
 **чаты:**
 
 чаты хроняться как отдельные файлы в формате json, дериктория хранения: `/chats` пример имени файла: `chat_0.json`
-
-0 - это ID чата 
 
 **данные хранимые сообщением:**
 

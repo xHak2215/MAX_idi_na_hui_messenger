@@ -52,7 +52,7 @@ def get_media(id:int):
             StreamingResponse(streamfile(os.path.join(path, fn)), media_type="application/octet-stream")
             return    
         
-    return {"is_ok": False, "error_code":404, "detalis": f"файл не найден", "data": None}
+    return {"is_ok": False, "error_code":404, "details": f"файл не найден", "data": None}
 
 @app.post("/media/uploadfiles")
 async def uploadfiles(upload_file: UploadFile = File(...)):
@@ -74,7 +74,7 @@ async def uploadfiles(upload_file: UploadFile = File(...)):
             bufer+=chunk
         f_d.write(bufer)
     
-    return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
+    return {"is_ok": True, "error_code":None, "details":None, "data": None}
 
 @app.post("/media/uploadphoto")
 async def uploadphoto(upload_photo: UploadFile = File(...)):
@@ -96,7 +96,7 @@ async def uploadphoto(upload_photo: UploadFile = File(...)):
             bufer+=chunk
         f_d.write(zip_images(bufer))
     
-    return {"is_ok": True, "error_code":None, "detalis":None, "data": None}
+    return {"is_ok": True, "error_code":None, "details":None, "data": None}
 
 @app.get("/chat/creat_chat")
 def chat(name:str, avatar:int, private:bool, about:str|None, user_list:List[str] = Query(...)): # List[str] = Query(...) для приема сложных типов данных
@@ -109,7 +109,7 @@ def get_chat(login:str, chat_id:int):
     return data
 
 @app.get("/chat/chat_message")
-def caht_get_message(login:str, chat_id:int, token:str):
+def chat_get_message(login:str, chat_id:int, token:str):
     ver_data = verification_token(login, token)
     if ver_data["is_ok"] and ver_data["data"]:
         data = get_data_chat(login, chat_id)
@@ -118,12 +118,12 @@ def caht_get_message(login:str, chat_id:int, token:str):
             if login in data['data']["users_list"]:
                 mess = get_messages(chat_id)
                 if mess:
-                    return {"is_ok": True, "error_code":None, "detalis":None, "data": mess[0]}
-                else:return {"is_ok": False, "error_code":404, "detalis":"такого чата не существует", "data": None}
-            else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+                    return {"is_ok": True, "error_code":None, "details":None, "data": mess[0]}
+                else:return {"is_ok": False, "error_code":404, "details":"такого чата не существует", "data": None}
+            else:return {"is_ok": False, "error_code":403, "details":"нет доступа, user не состоит в чате", "data": None}
         else:
             return data
-    else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, пользователь не подтверждён", "data": None}
+    else:return {"is_ok": False, "error_code":403, "details":"нет доступа, пользователь не подтверждён", "data": None}
     
 @app.get("/chat/send_message")
 def send_message(chat_id:int, message:str, reply_to:int, login:str, token:str):
@@ -137,16 +137,16 @@ def send_message(chat_id:int, message:str, reply_to:int, login:str, token:str):
                 if reply_to>0:
                     mesag_reply = get_messages(chat_id)
                     if not mesag_reply:
-                        return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
+                        return {"is_ok": False, "error_code":404, "details":"нет сообщения с таким ID с этом чате", "data": None}
                     else:
                         data = mesag_reply[0]
                     
                 creat_data = creat_message(chat_id, login, message, reply_to, send_time)
                 if creat_data["is_ok"]:
-                    return {"is_ok": True, "error_code":None, "detalis":None, "data":creat_data["data"]}
+                    return {"is_ok": True, "error_code":None, "details":None, "data":creat_data["data"]}
                 else:
                     return creat_data
-            else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+            else:return {"is_ok": False, "error_code":403, "details":"нет доступа, user не состоит в чате", "data": None}
         else:return data
 
 @app.get("/chat/edit_message")
@@ -161,16 +161,16 @@ def edit_messages(chat_id:int, message_id:int, message:str, login:str, token:str
                 if message_id>0:
                     mesag_reply = get_messages(chat_id)
                     if not mesag_reply:
-                        return {"is_ok": False, "error_code":404, "detalis":"нет сообщения с таким ID с этом чате", "data": None}
+                        return {"is_ok": False, "error_code":404, "details":"нет сообщения с таким ID с этом чате", "data": None}
                     else:
                         data = mesag_reply[0]
                     
                 creat_data = edit_message(chat_id, login, message, message_id, send_time)
                 if creat_data["is_ok"]:
-                    return {"is_ok": True, "error_code":None, "detalis":None, "data":creat_data["data"]}
+                    return {"is_ok": True, "error_code":None, "details":None, "data":creat_data["data"]}
                 else:
                     return creat_data
-            else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+            else:return {"is_ok": False, "error_code":403, "details":"нет доступа, user не состоит в чате", "data": None}
         else:return data
 
 @app.get("/chat/get_message")
@@ -185,9 +185,9 @@ def get_message_id(login:str, chat_id:int, token:str, message_id:int):
                 if data:
                     message = data[0].get(str(message_id))
                     if message:
-                        return {"is_ok": True, "error_code":None, "detalis":None, "data":message}
-                else:return {"is_ok": False, "error_code":404, "detalis":"сообщение не найдено", "data": None}
-            else:return {"is_ok": False, "error_code":403, "detalis":"нет доступа, user не состоит в чате", "data": None}
+                        return {"is_ok": True, "error_code":None, "details":None, "data":message}
+                else:return {"is_ok": False, "error_code":404, "details":"сообщение не найдено", "data": None}
+            else:return {"is_ok": False, "error_code":403, "details":"нет доступа, user не состоит в чате", "data": None}
         else:return data
             
 if __name__ == "__main__":

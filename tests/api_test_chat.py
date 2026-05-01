@@ -3,7 +3,7 @@ import time
 
 timer=time.time()
 
-root_ip="http://127.0.1.1:8800"
+root_ip = "http://127.0.1.1:8800"
 
 tokin = "822093208073f0c4a2818e77d033887dc124871ece76abf07aed4c58ba337277"
 
@@ -42,7 +42,7 @@ relust_j=requests.get(f"{root_ip}/chat/get_message",params={ # проверка 
                                                     "token":tokin,
                                                     "message_id":100})
 
-relust_g=requests.get(f"{root_ip}/chat/edit_message",params={ 
+relust_f=requests.get(f"{root_ip}/chat/edit_message",params={ 
                                                     "login":"user228",
                                                     "message":f"hello! {time.time()}",
                                                     "chat_id":1,
@@ -58,5 +58,5 @@ print(relust_с.json())
 print(relust_g.json())
 print(relust_h.json())
 print(relust_j.json())
-print(relust_g.json())
+print(relust_f.json())
 print(f"время исполнения: {timer} s.")
